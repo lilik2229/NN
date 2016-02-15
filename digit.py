@@ -8,6 +8,7 @@ import sklearn.linear_model
 import matplotlib
 from matplotlib import cm
 from sklearn.datasets import load_digits
+from numpy import ndarray
 
 digits = load_digits()
 X = digits.data
@@ -48,6 +49,8 @@ def build_model(nn_hdim, num_passes=20000 , print_loss=False):
     b2 = np.zeros((1,nn_output_dim))
     model = {}
     for i in xrange(0, num_passes):
+        print type(W1[0])
+        print type(X[0])
         z1 = X.dot(W1) + b1
         a1 = np.tanh(z1)
         z2 = a1.dot(W2) + b2
@@ -82,9 +85,14 @@ def build_model(nn_hdim, num_passes=20000 , print_loss=False):
 
 p = np.random.random_integers(0,len(X),num_examples)
 samples = np.array(list(zip(X,Y)))[p]
-# print samples
+
 X = samples[:,0]
-# print X
+X2 = X[0]
+for i in X[1:]:
+    X2 = np.c_[X2,i]
+X = X2.T
+print X.shape
+
 for index,(data ,label) in enumerate(samples):
     plt.subplot(5,5,index+1)
     plt.imshow(data.reshape(8, 8), cmap=cm.gray_r, interpolation='nearest')
