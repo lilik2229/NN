@@ -14,7 +14,7 @@ digits = load_digits()
 X = digits.data
 Y = digits.target
 nn_input_dim = X.shape[1]
-nn_output_dim = 9
+nn_output_dim = 10
 num_examples = 25
 epsilon = 0.01
 reg_lambda = 0.01
@@ -27,7 +27,10 @@ def calculate_loss(model):
     z2 = a1.dot(W2) + b2
     exp_scores = np.exp(z2)
     probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
-    corect_logprobs = -np.log(probs[range(num_examples),y])
+    # print probs.shape
+    # print y.astype(int).shape
+    # print np.log(probs) * y
+    corect_logprobs = -np.log(probs) * y
     data_loss = np.sum(corect_logprobs)
     data_loss += reg_lambda/2 * (np.sum(np.square(W1)))
     return 1./num_examples * data_loss
@@ -41,7 +44,7 @@ def predict(model, x):
     probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
     return np.argmax(probs,axis=1)
 
-def build_model(nn_hdim, num_passes=20000 , print_loss=False):
+def build_model(nn_hdim, num_passes=1 , print_loss=False):
     np.random.seed(0)
     W1 = np.random.randn(nn_input_dim,nn_hdim) / np.sqrt(nn_input_dim)
     b1 = np.zeros((1,nn_hdim))
@@ -49,8 +52,6 @@ def build_model(nn_hdim, num_passes=20000 , print_loss=False):
     b2 = np.zeros((1,nn_output_dim))
     model = {}
     for i in xrange(0, num_passes):
-        print type(W1[0])
-        print type(X[0])
         z1 = X.dot(W1) + b1
         a1 = np.tanh(z1)
         z2 = a1.dot(W2) + b2
@@ -58,7 +59,6 @@ def build_model(nn_hdim, num_passes=20000 , print_loss=False):
         probs = exp_scores / np.sum(exp_scores, axis=1, keepdims=True)
         
         delta3 = probs
-        print delta3.shape
         delta3[range(num_examples)] -= y[range(num_examples)]
         
         dW2 = (a1.T).dot(delta3)
@@ -91,7 +91,6 @@ X2 = X[0]
 for i in X[1:]:
     X2 = np.c_[X2,i]
 X = X2.T
-print X.shape
 
 for index,(data ,label) in enumerate(samples):
     plt.subplot(5,5,index+1)
@@ -100,11 +99,14 @@ for index,(data ,label) in enumerate(samples):
     # 画像データのタイトルに正解ラベルを表示する
     y[index,label] = 1
     plt.title(label, color='red')
-
     
 #print y
 # グラフを表示する
 # plt.show()    
 
+print "learning start"
 model = build_model(3,print_loss=True)
-
+# print  model
+# for index,(data ,label) in enumerate(samples):
+#      print predict(model,X)
+    
